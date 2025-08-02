@@ -1,21 +1,23 @@
-FROM python:3-slim-buster
+FROM python:3.11-slim
 
-RUN pip install --upgrade pip
+# Install build tools and dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    python3-dev \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
-ENV USER botx
-ENV HOME /home/$USER
-ENV BOT $HOME/media-search-bot
+# Set working directory
+WORKDIR /app
 
-RUN useradd -m $USER
-RUN mkdir -p $BOT
-RUN chown $USER:$USER $BOT
-USER $USER
-WORKDIR $BOT
+# Copy requirements file
+COPY requirements.txt .
 
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY requirements.txt requirements.txt
-RUN pip install --user --no-cache-dir -r requirements.txt
-
+# Copy the rest of the application
 COPY . .
 
-CMD python3 bot.py
+# Command to run the application (သင့် app အလိုက် ပြောင်းပါ)
+CMD ["python", "app.py"]
